@@ -1,1262 +1,167 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Omega Network</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.umd.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings</title>
   <style>
-    * { box-sizing: border-box; }
     body {
       font-family: Arial, sans-serif;
-      background: #fff;
-      color: #000;
+      background: #f4f4f4;
+      color: #333;
       margin: 0;
       padding: 40px 20px;
-    }
-
-    .logo { font-size: 6em; text-align: center; margin-bottom: 0; }
-    .header { text-align: center; font-size: 2em; font-weight: bold; margin-bottom: 30px; }
-
-    .tabs {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      margin-bottom: 20px;
-    }
-
-    .tab {
-      padding: 10px 20px;
-      font-weight: bold;
-      cursor: pointer;
-      border-bottom: 3px solid transparent;
-    }
-
-    .tab.active { border-bottom: 3px solid #000; }
-
-    .wallet {
-      /* Removed all conflicting positioning properties */
-    }
-
-    .wallet button {
-      background: #000;
-      color: #fff;
-      border: none;
-      padding: 10px 16px;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .wallet button.connected {
-      font-family: monospace;
-      font-size: 0.9em;
-    }
-
-    .header-buttons {
-      position: absolute;
-      top: 20px;
-      right: 20px;
       display: flex;
       flex-direction: column;
-      align-items: flex-end;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .container {
+      background: #fff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    h1 {
+      color: #000;
+      margin-bottom: 20px;
+    }
+    .form-section {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: auto 1fr;
       gap: 10px;
+      align-items: center;
     }
-
-    .list-token-button {
-      /* Removed all conflicting positioning properties */
-      background: #000;
-      color: #fff;
-      border: none;
-      padding: 10px 16px;
-      border-radius: 6px;
+    .form-row label {
       font-weight: bold;
-      cursor: pointer;
+      text-align: right;
+      padding-right: 10px;
     }
-
-    .list-token-button:hover {
-      background-color: #222;
+    .spread-inputs {
+      display: flex;
+      gap: 10px;
+      width: 100%;
     }
-
-    .section {
-      display: none;
-      max-width: 1200px;
-      margin: auto;
+    .spread-inputs input {
+      flex: 1;
     }
-
-    .section.active { display: block; }
-
-    input, select, textarea, button {
-      padding: 10px;
-      font-size: 1em;
-      border-radius: 5px;
+    .form-row input {
+      padding: 8px;
       border: 1px solid #ccc;
+      border-radius: 4px;
     }
-
     button {
       background: #000;
       color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
       font-weight: bold;
+      cursor: pointer;
+      margin-top: 20px;
     }
-
     button:hover {
       background-color: #222;
     }
 
-    .clob-layout {
-      display: flex;
-      flex-wrap: nowrap;
-      gap: 10px;
-      margin-top: 20px;
-      align-items: flex-start;
-      position: relative;
-    }
-
-    .chart-box, .profile-box {
-      flex: 1;
-      border: 2px solid black;
-      border-radius: 8px;
-      padding: 20px;
-      min-width: 0;
-    }
-
-    .swap-icon {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: #000;
+    .coming-soon-banner {
+      font-size: 3em;
+      font-weight: bold;
       color: #fff;
-      border-radius: 50%;
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      cursor: pointer;
-      z-index: 10;
-    }
-
-    #actualPrice {
-      font-size: 1.3em;
-      font-weight: bold;
-      margin-bottom: 8px;
-    }
-
-    .info-line {
-      font-size: 0.95em;
-      margin-top: 8px;
-    }
-
-    .sentiment-up { color: green; font-weight: bold; }
-    .sentiment-down { color: red; font-weight: bold; }
-
-    .profile-tabs {
-      display: flex;
-      justify-content: space-between;
-      gap: 20px;
-      margin-bottom: 12px;
-    }
-
-    .profile-tab {
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .profile-tab.active { text-decoration: underline; }
-
-    .profile-content { display: none; }
-    .profile-content.active { display: block; }
-
-    .form-section {
-      margin-bottom: 20px;
-    }
-
-    .form-section label {
-      display: block;
-      font-weight: bold;
-      margin-bottom: 6px;
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .form-buttons {
-      display: flex;
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    .perps-box {
-      border-top: 1px solid #ccc;
-      padding-top: 10px;
-    }
-
-    .perps-buttons {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 8px;
-    }
-
-    .perp-btn {
-      padding: 6px 12px;
-      background: #eee;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      font-size: 0.85em;
-      cursor: default;
-    }
-
-    .orderbook-table {
-      border: 2px solid black;
-      border-radius: 8px;
+      background-color: #000000;
       padding: 20px;
-      margin-top: 30px;
-    }
-
-    .orderbook-tables {
-      display: flex;
-      justify-content: space-between;
-      gap: 20px;
-    }
-
-    .orderbook-side {
-      width: 100%;
-    }
-
-    .orderbook-side h4 {
       text-align: center;
-      margin-bottom: 8px;
+      margin-bottom: 30px;
+      border-radius: 8px;
+      width: 80%;
+      max-width: 800px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     }
 
-    table {
+    #adminWallet {
       width: 100%;
-      border-collapse: collapse;
-    }
-
-    th, td {
-      border-bottom: 1px solid #ccc;
-      padding: 8px;
-      text-align: left;
-      font-size: 0.95em;
-    }
-
-    th {
-      background: #f5f5f5;
-    }
-
-    .cancel-btn {
-      background-color: crimson;
-      color: white;
-      border: none;
-      padding: 4px 10px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    .cancel-btn:hover {
-      background-color: #a30000;
-    }
-
-    .market-selector {
-      margin-bottom: 20px;
-      text-align: center;
-    }
-
-    .market-selector select {
-      padding: 8px 15px;
-      font-size: 1em;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-      background: #fff;
-    }
-
-    .bold-label {
-      font-weight: bold;
-    }
-
-    #depthChart {
-      width: 100%;
-      height: 300px;
-      margin-top: 30px;
-      background: #f9f9f9;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .depth-image {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
-
-    .tabs .tab.active {
-      font-size: 1.5em;
-      padding: 15px 25px;
-    }
-
-    .overview-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-    }
-
-    .overview-item {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .overview-label {
-      font-weight: bold;
-    }
-
-    .overview-value {
-      margin-top: 5px;
-    }
-
-    .copy-btn {
-      background: black; /* Black background */
-      color: white; /* White text */
-      border: none;
-      padding: 3px 8px;
-      font-size: 0.7em; /* Smaller font size */
-      border-radius: 4px;
-      cursor: pointer;
-      outline: inherit;
-      margin-left: 5px; /* Add some space from the text */
-      align-self: center; /* Vertically align with the text */
-    }
-
-    .copy-btn:hover {
-      background-color: #333; /* Darker grey on hover for black button */
     }
   </style>
 </head>
 <body>
-<div class="header-buttons">
-<div class="wallet">
-  <button id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
+  <div class="coming-soon-banner">
+    COMING SOON
   </div>
+  <div class="container">
+    <h1>Token Listing</h1>
 
-  <!-- List Token Button -->
-  <button class="list-token-button" onclick="window.location.href = 'settings.html'">List Token</button>
-</div>
-
-<div class="logo">&#937;</div>
-<div class="header">Omega Network</div>
-
-<div class="tabs">
-  <div class="tab active" onclick="showTab('clob')">&#937;lympus eDEX</div>
-</div>
-
-<div id="clob" class="section active">
-  <div class="market-selector">
-    <label for="marketPair" class="bold-label">Market Pair:</label>
-    <select id="marketPair" onchange="updateMarketLogo()">
-      <option value="PRE/ALPHA">Pre Omega (Ω) / Pre Alpha (α)</option>
-    </select>
-  </div>
-
-  <div class="clob-layout">
-    <!-- Chart Box -->
-    <div class="chart-box" id="clobLeft">
-      <div id="actualPrice">Actual Price: $0.00</div>
-      <canvas id="priceChart" height="300"></canvas>
-      <div class="info-line" id="volume">24h Volume: $0</div>
-      <div class="info-line" id="sentiment">Sentiment: Neutral</div>
-    </div>
-
-    <!-- Swap icon -->
-    <div class="swap-icon" onclick="swapLayout()">↔</div>
-
-    <!-- Order panel -->
-    <div class="profile-box" id="clobRight">
-      <div class="profile-tabs">
-        <div class="profile-tab active" onclick="switchProfileTab('type')">Order Type</div>
-        <div class="profile-tab" onclick="switchProfileTab('my')">My Orders</div>
-        <div class="profile-tab" onclick="switchProfileTab('wallet')">Wallet Holdings</div>
-        <div class="profile-tab" onclick="switchProfileTab('faq')">FAQ</div>
-      </div>
-
-      <!-- Chart Price Order -->
-      <div id="profile-type" class="profile-content active">
-        <div class="form-section">
-          <label>Chart Price:</label>
-          <div class="form-row">
-            <select id="type">
-              <option value="buy">Buy</option>
-              <option value="sell">Sell</option>
-            </select>
-            <input type="number" id="price" placeholder="Chart price auto" />
-            <input type="number" id="amount" placeholder="Amount" />
-          </div>
-          <div class="form-buttons">
-            <button onclick="approveToken()">Approve</button>
-            <button onclick="depositOrder()">Deposit</button>
-          </div>
-        </div>
-
-        <!-- Limit Order -->
-        <div class="form-section">
-          <label>Limit Order:</label>
-          <div class="form-row">
-            <select id="typeLimit">
-              <option value="buy">Buy</option>
-              <option value="sell">Sell</option>
-            </select>
-            <input type="number" id="limitPrice" placeholder="Set limit price" />
-            <input type="number" id="limitAmount" placeholder="Amount" />
-          </div>
-          <div class="form-buttons">
-            <button onclick="approveToken()">Approve</button>
-            <button onclick="depositOrder()">Deposit</button>
-          </div>
-        </div>
-
-        <!-- Project Overview -->
-        <div class="perps-box">
-          <h4 style="font-size: 1.1em; text-decoration: underline;">Project Overview:</h4>
-          <div class="overview-grid">
-            <div class="overview-item">
-              <span class="overview-label">Base Token Contract:</span>
-              <span id="baseTokenContract" class="overview-value"></span>
-              <button class="copy-btn" onclick="copyToClipboard('baseTokenContract')">Copy</button>
-          </div>
-            <div class="overview-item">
-              <span class="overview-label">Quote Token Contract:</span>
-              <span id="quoteTokenContract" class="overview-value"></span>
-              <button class="copy-btn" onclick="copyToClipboard('quoteTokenContract')">Copy</button>
-          </div>
-            <div class="overview-item">
-              <span class="overview-label">Escrow Contract:</span>
-              <span id="escrowContract" class="overview-value"></span>
-              <button class="copy-btn" onclick="copyToClipboard('escrowContract')">Copy</button>
-          </div>
-            <div class="overview-item">
-              <span class="overview-label">Base Token Supply:</span>
-              <span id="baseTokenSupply" class="overview-value"></span>
-            </div>
-            <div class="overview-item">
-              <span class="overview-label">Quote Token Supply:</span>
-              <span id="quoteTokenSupply" class="overview-value"></span>
-            </div>
-            <div class="overview-item">
-              <span class="overview-label">Website:</span>
-              <span class="overview-value"><a href="https://omeganetwork.co" target="_blank">omeganetwork.co</a></span>
-            </div>
-            <div class="overview-item">
-              <span class="overview-label">Whitepaper:</span>
-              <span id="whitepaperLink" class="overview-value"><a href="https://omega-network-1.gitbook.io/omega-network" target="_blank">Whitepaper (GitBook)</a></span>
-            </div>
-            <div class="overview-item">
-              <span class="overview-label">Discord:</span>
-              <span id="discordLink" class="overview-value">Not yet provided</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- My Orders -->
-      <div id="profile-my" class="profile-content">
-        <table>
-          <thead><tr><th>ID</th><th>Type</th><th>Price</th><th>Amount</th><th></th></tr></thead>
-          <tbody id="myOrdersTable"></tbody>
-        </table>
-      </div>
-
-      <!-- Wallet Holdings -->
-      <div id="profile-wallet" class="profile-content">
-        <table id="walletHoldingsTable">
-          <thead>
-            <tr>
-              <th>Token</th>
-              <th>Wallet Balance</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Pre Omega (Ω)</td>
-              <td id="preOmegaWalletBalance"></td>
-            </tr>
-            <tr>
-              <td>Pre Alpha (α)</td>
-              <td id="preAlphaWalletBalance"></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- FAQ Section -->
-      <div id="profile-faq" class="profile-content">
-        <h4>Frequently Asked Questions</h4>
-        <div class="faq-item">
-          <h5>What is Olympus eDEX?</h5>
-          <p>Olympus eDEX is an escrow based decentralized exchange (DEX) platform for trading crypto assets.</p>
-        </div>
-        <div class="faq-item">
-          <h5>How do I connect my wallet?</h5>
-          <p>Click the "Connect Wallet" button in the top right corner and approve the connection via your MetaMask wallet.</p>
-        </div>
-        <div class="faq-item">
-          <h5>How do I deposit tokens?</h5>
-          <p>First, ensure you have approved the necessary token via the "Approve" button. Then, enter the price and amount for your order and click "Deposit".</p>
-        </div>
-        <div class="faq-item">
-          <h5>How do I match orders?</h5>
-          <p>Enter the Buy Order ID and Sell Order ID in the "Match Orders" section and click the "Match Orders" button.</p>
-        </div>
-        <div class="faq-item">
-          <h5>Disclaimer:</h5>
-          <p>This product is currently in early alpha and is being continuously updated. Features such as the chart, volume, and other functionalities are under active development. The primary purpose of this version is to showcase a new trading style for pre-market tokens.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Order Matching Section -->
-  <div class="orderbook-table" style="margin-top: 20px;">
-    <h3 style="text-align:center;">Match Orders</h3>
     <div class="form-section">
-      <div class="form-row" style="grid-template-columns: 1fr 1fr; gap: 20px;">
-        <div style="display: flex; flex-direction: column;">
-          <label for="buyOrderId" style="margin-bottom: 5px; text-align: left;">Buy Order ID:</label>
-          <input type="number" id="buyOrderId" placeholder="Enter Buy Order ID" />
-        </div>
-        <div style="display: flex; flex-direction: column;">
-          <label for="sellOrderId" style="margin-bottom: 5px; text-align: left;">Sell Order ID:</label>
-          <input type="number" id="sellOrderId" placeholder="Enter Sell Order ID" />
-        </div>
-      </div>
-      <div class="form-buttons" style="justify-content: center;">
-        <button onclick="matchOrders()">Match Orders</button>
+      <label>Token Listing:</label>
+      <div class="form-row">
+        <input type="text" placeholder="Base Symbol (e.g. SOL)" />
+        <input type="text" placeholder="Pair Symbol (e.g. USDT)" />
       </div>
     </div>
+
+    <div class="form-section">
+      <label>Base Pair:</label>
+      <div class="form-row">
+        <input type="text" placeholder="Enter Base Pair" />
+      </div>
+    </div>
+
+    <div class="form-section">
+      <label>Starting Price:</label>
+      <div class="form-row">
+        <input type="number" placeholder="Enter Starting Price" />
+      </div>
+    </div>
+
+    <div class="form-section">
+      <label>Logo (Upload Image):</label>
+      <div class="form-row">
+        <input type="file" accept="image/*" />
+      </div>
+    </div>
+
+    <div class="form-section">
+      <label>Market Making Settings:</label>
+      <div class="form-row">
+        <label><input type="checkbox" id="enableMM" /> Enable Market Making</label>
+      </div>
+      <div class="form-row">
+        <label for="liquiditySpread">Liquidity Spread:</label>
+        <input type="number" id="liquiditySpread" placeholder="Enter Amount" />
+      </div>
+      <div class="form-row">
+        <label for="desiredVolume">Desired Volume:</label>
+        <input type="number" id="desiredVolume" placeholder="Enter Desired Volume" />
+      </div>
+      <div class="form-row">
+        <label>Desired Spread:</label>
+        <div class="spread-inputs">
+          <input type="number" id="desiredSpreadPlus" placeholder="Positive (+)" />
+          <input type="number" id="desiredSpreadMinus" placeholder="Negative (-)" />
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <label for="adminWallet">Admin Wallet:</label>
+      <div class="form-row">
+        <input type="text" id="adminWallet" placeholder="Enter Admin Wallet Address" />
+      </div>
+    </div>
+
+    <button onclick="saveSettings()">Save Settings</button>
+    <button onclick="window.location.href = 'index.html'">Go Back</button>
   </div>
 
-  <!-- Order Book + Depth Chart -->
-  <div class="orderbook-table">
-    <h3 style="text-align:center;">Order Book</h3>
-    <div class="orderbook-tables">
-      <div class="orderbook-side">
-        <h4>Buy Orders</h4>
-        <table id="bidsTable">
-          <thead><tr><th>ID</th><th>Price</th><th>Amount</th><th>Total (USDT)</th></tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
-      <div class="orderbook-side">
-        <h4>Sell Orders</h4>
-        <table id="asksTable">
-          <thead><tr><th>ID</th><th>Price</th><th>Amount</th><th>Total (USDT)</th></tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </div>
-
-    <h4 style="text-align:center; margin-top:30px;">Market Depth</h4>
-    <div id="depthChart">
-      <canvas id="depthCanvas" height="300"></canvas>
-    </div>
-  </div>
-</div>
-<script>
-let chart, priceData, lastPrice = 5.0, volume = 0;
-let provider, signer, connectedWallet;
-let depthChart; // Declare depthChart globally
-
-// Updated Contract Addresses for ClobEscrowV2
-const BASE_TOKEN_ADDRESS = "0xB54c18bbf78371b78C890acfFA6Fff10d026488F"; // PreOmega
-const QUOTE_TOKEN_ADDRESS = "0x5cD696302E35568A51f0D7aF3D01BE1980e3FBb5"; // PreAlpha
-const ESCROW_ADDRESS = "0x1fa2b91593492bdca97f213ef6d8d1e4b9823c09"; // User's new contract address
-
-const TOKEN_ABI = [
-  "function approve(address,uint256) returns (bool)",
-  "function allowance(address,address) view returns (uint256)",
-  "function balanceOf(address) view returns (uint256)",
-  "function totalSupply() view returns (uint256)",
-  "function decimals() view returns (uint8)"
-];
-const ESCROW_ABI = [
-  "function deposit(uint,uint,bool) external",
-  "function withdraw(uint) external",
-  "function getUserOrders(address) view returns (uint[])",
-  "function orders(uint) view returns (address,uint,uint,bool,bool,address)",
-  "function matchOrders(uint,uint) external",
-  "function userTradingVolume(address) view returns (uint)"
-];
-
-async function connectWallet() {
-  provider = new ethers.JsonRpcProvider("https://0x4e454228.rpc.aurora-cloud.dev"); // Omega RPC URL
-
-  if (window.ethereum) {
-    try {
-      const browserProvider = new ethers.BrowserProvider(window.ethereum);
-      const accounts = await browserProvider.send("eth_requestAccounts", []);
-      signer = await browserProvider.getSigner();
-  connectedWallet = accounts[0];
-
-      // Optional: Check if MetaMask is on the correct chain
-      const OMEGA_CHAIN_ID = 1313161768n; // Using BigInt for Chain ID
-      const network = await browserProvider.getNetwork();
-      if (network.chainId !== OMEGA_CHAIN_ID) {
-        alert("Please switch your MetaMask to the Omega blockchain (Chain ID: " + OMEGA_CHAIN_ID.toString() + ")");
-      }
-
-    } catch (error) {
-      console.error("Error connecting MetaMask:", error);
-      alert("Failed to connect MetaMask. Please ensure it's installed and unlocked.");
-      signer = null;
-      connectedWallet = null;
+  <script>
+    function saveSettings() {
+      alert("Settings saved! (This is a placeholder)");
     }
-  } else {
-    alert("MetaMask not detected. Proceeding in read-only mode.");
-    signer = null;
-    connectedWallet = null;
-  }
-
-  const btn = document.getElementById("connectBtn");
-  if (connectedWallet) {
-  btn.classList.add("connected");
-  btn.innerText = `${connectedWallet.slice(0, 6)}...${connectedWallet.slice(-4)}`;
-  } else {
-    btn.classList.remove("connected");
-    btn.innerText = "Connect Wallet";
-  }
-  loadOrderBook();
-  populateProjectOverview(); // Call this on wallet connect/page load
-}
-
-function swapLayout() {
-  const left = document.getElementById("clobLeft");
-  const right = document.getElementById("clobRight");
-  const layout = document.querySelector(".clob-layout");
-  if (layout.firstElementChild.id === "clobLeft") {
-    layout.insertBefore(right, left);
-  } else {
-    layout.insertBefore(left, right);
-  }
-}
-
-function switchProfileTab(which) {
-  document.querySelectorAll(".profile-tab").forEach(t => t.classList.remove("active"));
-  document.querySelectorAll(".profile-content").forEach(c => c.classList.remove("active"));
-  document.querySelector(`.profile-tab[onclick="switchProfileTab('${which}')"]`).classList.add("active");
-  document.getElementById("profile-" + which).classList.add("active");
-
-  // Load data based on active tab
-  if (which === 'my') {
-    loadOrderBook();
-  } else if (which === 'wallet') {
-    loadWalletHoldings(); // Call the new function for wallet holdings
-  } else if (which === 'faq') {
-    // No specific function needed for static FAQ for now
-  }
-}
-
-function getRandomChange() {
-  const spike = Math.random() > 0.97;
-  return (Math.random() > 0.5 ? 1 : -1) *
-    (spike ? Math.random() * 1 + 0.5 : Math.random() * 0.1 + 0.02);
-}
-
-function updateChart() {
-  const delta = getRandomChange();
-  const newPrice = Math.max(4, Math.min(6, lastPrice + delta));
-  const now = new Date().toLocaleTimeString();
-
-  priceData.labels.push(now);
-  priceData.datasets[0].data.push(newPrice.toFixed(2));
-  if (priceData.labels.length > 25) {
-    priceData.labels.shift();
-    priceData.datasets[0].data.shift();
-  }
-
-  lastPrice = newPrice;
-  chart.update();
-
-  document.getElementById("price").value = newPrice.toFixed(2);
-  document.getElementById("actualPrice").innerText = `Actual Price: $${newPrice.toFixed(2)}`;
-
-  volume = Math.min(5_000_000, volume + Math.floor(Math.random() * 20000));
-  document.getElementById("volume").innerText = `24h Volume: $${volume.toLocaleString()}`;
-
-  const prev = priceData.datasets[0].data.at(-2);
-  const sentiment = prev && newPrice > prev ? "Bullish" : "Bearish";
-  const elem = document.getElementById("sentiment");
-  elem.innerText = `Sentiment: ${sentiment}`;
-  elem.className = sentiment === "Bullish" ? "sentiment-up" : "sentiment-down";
-}
-
-function setupChart() {
-  const ctx = document.getElementById("priceChart").getContext("2d");
-  priceData = {
-    labels: [],
-    datasets: [{
-      label: "Price ($)",
-      data: [],
-      borderColor: "#007aff",
-      borderWidth: 2,
-      fill: false,
-      tension: 0.1
-    }]
-  };
-  chart = new Chart(ctx, {
-    type: "line",
-    data: priceData,
-    options: {
-      animation: false,
-      responsive: true,
-      scales: {
-        x: { display: false },
-        y: { min: 3.5, max: 6.5, ticks: { stepSize: 0.5 } }
-      }
-    }
-  });
-}
-
-async function loadOrderBook() {
-  const bidsEl = document.querySelector("#bidsTable tbody");
-  const asksEl = document.querySelector("#asksTable tbody");
-  const myEl = document.getElementById("myOrdersTable");
-
-  let currentBids = [];
-  let currentAsks = [];
-  let currentMyOrders = [];
-
-  // Extract current data from DOM to compare
-  Array.from(bidsEl.rows).forEach(row => {
-    if (row.cells.length > 0) currentBids.push({ id: row.cells[0].innerText, price: parseFloat(row.cells[1].innerText), amount: parseFloat(row.cells[2].innerText) });
-  });
-  Array.from(asksEl.rows).forEach(row => {
-    if (row.cells.length > 0) currentAsks.push({ id: row.cells[0].innerText, price: parseFloat(row.cells[1].innerText), amount: parseFloat(row.cells[2].innerText) });
-  });
-  Array.from(myEl.rows).forEach(row => {
-    if (row.cells.length > 0) currentMyOrders.push({ id: row.cells[0].innerText }); // Only ID for 'My Orders' comparison initially
-  });
-
-  let newBids = [];
-  let newAsks = [];
-  let newMyOrders = [];
-
-  if (!connectedWallet || !signer) {
-    const { bids, asks } = generateRandomOrderBook(lastPrice);
-    newBids = bids.map((order, index) => ({ ...order, id: `DUMMY-${index}-B` })); // Assign unique dummy IDs
-    newAsks = asks.map((order, index) => ({ ...order, id: `DUMMY-${index}-S` })); // Assign unique dummy IDs
-  } else {
-    const contract = new ethers.Contract(ESCROW_ADDRESS, ESCROW_ABI, signer);
-    try {
-  const ids = await contract.getUserOrders(connectedWallet);
-
-  for (let id of ids) {
-        const [user, amt, price, isBuy, active, tokenDeposited] = await contract.orders(id);
-    if (!active || amt === 0n) continue;
-    const p = parseFloat(ethers.formatUnits(price, 18)).toFixed(2);
-    const a = parseFloat(ethers.formatUnits(amt, 18)).toFixed(0);
-        const t = (parseFloat(p) * parseFloat(a)).toFixed(2);
-
-        const orderData = { id: id.toString(), price: parseFloat(p), amount: parseFloat(a), total: parseFloat(t) };
-        if (isBuy) {
-          newBids.push(orderData);
-        } else {
-          newAsks.push(orderData);
-        }
-        newMyOrders.push({ id: id.toString(), type: isBuy ? "Buy" : "Sell", price: parseFloat(p), amount: parseFloat(a) });
-      }
-    } catch (error) {
-      console.error("Error loading real order book data:", error);
-    }
-  }
-
-  // Function to update a table
-  function updateTable(tableElement, newItems, oldItems, isMyOrders = false) {
-    const existingRows = Array.from(tableElement.rows);
-    const newItemsMap = new Map(newItems.map(item => [item.id, item]));
-    const oldItemsMap = new Map(oldItems.map(item => [item.id, item]));
-
-    // Remove rows that are no longer in newItems
-    for (let i = existingRows.length - 1; i >= 0; i--) {
-      const row = existingRows[i];
-      const rowId = row.cells[0]?.innerText;
-      if (rowId && !newItemsMap.has(rowId)) {
-        row.remove();
-      }
-    }
-
-    // Add or update rows
-    newItems.forEach(newItem => {
-      let row = Array.from(tableElement.rows).find(r => r.cells[0]?.innerText === newItem.id);
-
-      if (!row) {
-        // Create new row if it doesn't exist
-        row = tableElement.insertRow();
-        if (isMyOrders) {
-          row.innerHTML = `
-            <td>${newItem.id}</td>
-            <td>${newItem.type}</td>
-            <td>${newItem.price.toFixed(2)}</td>
-            <td>${newItem.amount.toFixed(0)}</td>
-            <td><button class="cancel-btn" onclick="cancelOrder(${newItem.id})">Cancel</button></td>`;
-        } else {
-          row.innerHTML = `<td>${newItem.id}</td><td>${newItem.price.toFixed(2)}</td><td>${newItem.amount.toFixed(0)}</td><td>${newItem.total.toFixed(2)}</td>`;
-        }
-      } else {
-        // Update existing row if data has changed
-        if (isMyOrders) {
-          const oldItem = oldItemsMap.get(newItem.id);
-          if (!oldItem || oldItem.type !== newItem.type || oldItem.price !== newItem.price || oldItem.amount !== newItem.amount) {
-            row.cells[1].innerText = newItem.type;
-            row.cells[2].innerText = newItem.price.toFixed(2);
-            row.cells[3].innerText = newItem.amount.toFixed(0);
-          }
-        } else {
-          const oldItem = oldItemsMap.get(newItem.id);
-          if (!oldItem || oldItem.price !== newItem.price || oldItem.amount !== newItem.amount || oldItem.total !== newItem.total) {
-            row.cells[1].innerText = newItem.price.toFixed(2);
-            row.cells[2].innerText = newItem.amount.toFixed(0);
-            row.cells[3].innerText = newItem.total.toFixed(2);
-          }
-        }
-      }
-    });
-  }
-
-  // Update bids table
-  updateTable(bidsEl, newBids, currentBids);
-
-  // Update asks table
-  updateTable(asksEl, newAsks, currentAsks);
-
-  // Update my orders table
-  updateTable(myEl, newMyOrders, currentMyOrders, true);
-
-  // Update Market Depth Chart
-  updateDepthChart(newBids, newAsks);
-}
-
-// New function for Project Overview
-async function populateProjectOverview() {
-  const baseTokenContractEl = document.getElementById("baseTokenContract");
-  const quoteTokenContractEl = document.getElementById("quoteTokenContract");
-  const escrowContractEl = document.getElementById("escrowContract");
-
-  // Store full addresses in data attributes for copying
-  baseTokenContractEl.dataset.fullAddress = BASE_TOKEN_ADDRESS;
-  quoteTokenContractEl.dataset.fullAddress = QUOTE_TOKEN_ADDRESS;
-  escrowContractEl.dataset.fullAddress = ESCROW_ADDRESS;
-
-  // Display shortened addresses
-  baseTokenContractEl.innerText = `${BASE_TOKEN_ADDRESS.slice(0, 6)}...${BASE_TOKEN_ADDRESS.slice(-4)}`;
-  quoteTokenContractEl.innerText = `${QUOTE_TOKEN_ADDRESS.slice(0, 6)}...${QUOTE_TOKEN_ADDRESS.slice(-4)}`;
-  escrowContractEl.innerText = `${ESCROW_ADDRESS.slice(0, 6)}...${ESCROW_ADDRESS.slice(-4)}`;
-
-  try {
-    const baseTokenContract = new ethers.Contract(BASE_TOKEN_ADDRESS, TOKEN_ABI, provider);
-    const quoteTokenContract = new ethers.Contract(QUOTE_TOKEN_ADDRESS, TOKEN_ABI, provider);
-
-    const baseTotalSupply = await baseTokenContract.totalSupply();
-    const baseDecimals = await baseTokenContract.decimals();
-    const formattedBaseSupply = parseFloat(ethers.formatUnits(baseTotalSupply, baseDecimals)).toLocaleString('en-US', {maximumFractionDigits: 0});
-    document.getElementById("baseTokenSupply").innerText = `${formattedBaseSupply} tokens`;
-
-    const quoteTotalSupply = await quoteTokenContract.totalSupply();
-    const quoteDecimals = await quoteTokenContract.decimals();
-    const formattedQuoteSupply = parseFloat(ethers.formatUnits(quoteTotalSupply, quoteDecimals)).toLocaleString('en-US', {maximumFractionDigits: 0});
-    document.getElementById("quoteTokenSupply").innerText = `${formattedQuoteSupply} tokens`;
-
-  } catch (error) {
-    console.error("Error fetching token supplies:", error);
-    document.getElementById("baseTokenSupply").innerText = "N/A";
-    document.getElementById("quoteTokenSupply").innerText = "N/A";
-  }
-
-  // Set direct links
-  document.getElementById("whitepaperLink").innerHTML = "<a href=\"https://omega-network-1.gitbook.io/omega-network\" target=\"_blank\">Whitepaper (GitBook)</a>";
-  document.getElementById("discordLink").innerHTML = "Not yet provided"; // User will provide later
-}
-
-// New function to copy to clipboard
-function copyToClipboard(elementId) {
-  const element = document.getElementById(elementId);
-  const fullAddress = element.dataset.fullAddress;
-  if (fullAddress) {
-    navigator.clipboard.writeText(fullAddress).then(() => {
-      alert("Address copied to clipboard!");
-    }).catch(err => {
-      console.error("Failed to copy text: ", err);
-    });
-  }
-}
-
-// New function for Wallet Holdings
-async function loadWalletHoldings() {
-  const walletHoldingsEl = document.getElementById("walletHoldingsTable");
-  walletHoldingsEl.innerHTML = ""; // Clear existing data
-
-  if (!connectedWallet || !signer) {
-    const row = walletHoldingsEl.insertRow();
-    row.innerHTML = `<td colspan="3">Please connect your wallet to view holdings.</td>`;
-    return;
-  }
-
-  try {
-    const baseTokenContract = new ethers.Contract(BASE_TOKEN_ADDRESS, TOKEN_ABI, signer);
-    const quoteTokenContract = new ethers.Contract(QUOTE_TOKEN_ADDRESS, TOKEN_ABI, signer);
-
-    // Fetch Base Token (Pre Omega) balances
-    const baseWalletBalance = await baseTokenContract.balanceOf(connectedWallet);
-    const baseEscrowAllowance = await baseTokenContract.allowance(connectedWallet, ESCROW_ADDRESS);
-
-    const baseRow = walletHoldingsEl.insertRow();
-    baseRow.innerHTML = `
-      <td>Pre Omega (Ω)</td>
-      <td>${parseFloat(ethers.formatUnits(baseWalletBalance, 18)).toLocaleString(undefined, { maximumFractionDigits: 4 })}</td>
-    `;
-
-    // Fetch Quote Token (Pre Alpha) balances
-    const quoteWalletBalance = await quoteTokenContract.balanceOf(connectedWallet);
-    const quoteEscrowAllowance = await quoteTokenContract.allowance(connectedWallet, ESCROW_ADDRESS);
-
-    const quoteRow = walletHoldingsEl.insertRow();
-    quoteRow.innerHTML = `
-      <td>Pre Alpha (α)</td>
-      <td>${parseFloat(ethers.formatUnits(quoteWalletBalance, 18)).toLocaleString(undefined, { maximumFractionDigits: 4 })}</td>
-    `;
-
-  } catch (error) {
-    console.error("Error loading wallet holdings:", error);
-    const row = walletHoldingsEl.insertRow();
-    row.innerHTML = `<td colspan="3">Error loading data. See console for details.</td>`;
-  }
-}
-
-// Order Matching Functions
-async function matchOrders() {
-  if (!signer) {
-    alert("Please connect your wallet to match orders.");
-    return;
-  }
-
-  const buyOrderId = document.getElementById("buyOrderId").value;
-  const sellOrderId = document.getElementById("sellOrderId").value;
-
-  if (!buyOrderId || !sellOrderId) {
-    alert("Please enter both Buy Order ID and Sell Order ID.");
-    return;
-  }
-
-  const escrowContract = new ethers.Contract(ESCROW_ADDRESS, ESCROW_ABI, signer);
-  try {
-    const tx = await escrowContract.matchOrders(buyOrderId, sellOrderId);
-    await tx.wait();
-    alert("Orders matched successfully!");
-    loadOrderBook(); // Refresh order book after matching
-    document.getElementById("buyOrderId").value = "";
-    document.getElementById("sellOrderId").value = "";
-  } catch (error) {
-    console.error("Error matching orders:", error);
-    alert(`Failed to match orders: ${error.message || error.reason || "Unknown error"}`);
-  }
-}
-
-function generateRandomOrderBook(currentPrice) {
-  const bids = [];
-  const asks = [];
-  const priceRange = currentPrice * 0.03; // 3% of current price
-  const minPrice = currentPrice - (priceRange / 2);
-  const maxPrice = currentPrice + (priceRange / 2);
-
-  for (let i = 0; i < 10; i++) {
-    const bidPrice = Math.max(minPrice, currentPrice - (Math.random() * priceRange / 2)).toFixed(2);
-    const bidAmount = (Math.floor(Math.random() * 500) + 50); // 50 to 550
-    bids.push({ price: parseFloat(bidPrice), amount: bidAmount, total: (parseFloat(bidPrice) * bidAmount).toFixed(2) });
-
-    const askPrice = Math.min(maxPrice, currentPrice + (Math.random() * priceRange / 2)).toFixed(2);
-    const askAmount = (Math.floor(Math.random() * 500) + 50); // 50 to 550
-    asks.push({ price: parseFloat(askPrice), amount: askAmount, total: (parseFloat(askPrice) * askAmount).toFixed(2) });
-  }
-
-  bids.sort((a, b) => b.price - a.price); // Sort bids descending by price
-  asks.sort((a, b) => a.price - b.price); // Sort asks ascending by price
-
-  return { bids, asks };
-}
-
-async function approveToken() {
-  if (!signer) {
-    alert("Please connect your wallet first.");
-    return;
-  }
-
-  let tokenAddressToApprove;
-  // Determine which token to approve based on the selected order type (Buy/Sell)
-  // For buy orders, the user needs to approve QUOTE_TOKEN_ADDRESS (Pre Alpha)
-  // For sell orders, the user needs to approve BASE_TOKEN_ADDRESS (Pre Omega)
-
-  const selectedTypeChart = document.getElementById("type").value;
-  const selectedTypeLimit = document.getElementById("typeLimit").value;
-
-  // Prioritize the tab currently active if both exist and have selections
-  // Assuming 'profile-type' is the active tab for Chart Price and Limit Order sections
-  const orderTypeTabActive = document.getElementById('profile-type').classList.contains('active');
-
-  if (orderTypeTabActive) {
-    // Check which order form is being used (chart price or limit order)
-    const chartPriceAmount = document.getElementById('amount').value;
-    const limitOrderAmount = document.getElementById('limitAmount').value;
-
-    if (chartPriceAmount && chartPriceAmount > 0) {
-      tokenAddressToApprove = (selectedTypeChart === 'buy') ? QUOTE_TOKEN_ADDRESS : BASE_TOKEN_ADDRESS;
-    } else if (limitOrderAmount && limitOrderAmount > 0) {
-      tokenAddressToApprove = (selectedTypeLimit === 'buy') ? QUOTE_TOKEN_ADDRESS : BASE_TOKEN_ADDRESS;
-    } else {
-      alert("Please enter an amount for your order before approving.");
-      return;
-    }
-  } else {
-    alert("Select an order type (Chart Price or Limit Order) and enter an amount to approve.");
-    return;
-  }
-
-
-  const tokenContract = new ethers.Contract(tokenAddressToApprove, TOKEN_ABI, signer);
-  const escrowAddress = ESCROW_ADDRESS;
-  const approvalAmount = ethers.MaxUint256; // Approve for a very large amount
-
-  try {
-    console.log(`Approving token ${tokenAddressToApprove} for escrow ${escrowAddress} with amount ${approvalAmount.toString()}`);
-
-    const tx = await tokenContract.approve(escrowAddress, approvalAmount);
-  await tx.wait();
-    alert("Approval successful!");
-    console.log(`Approval transaction successful: ${tx.hash}`);
-
-    // Log current allowance and balance after approval
-    const allowance = await tokenContract.allowance(connectedWallet, escrowAddress);
-    const balance = await tokenContract.balanceOf(connectedWallet);
-    console.log(`After approval - Allowance for ${tokenAddressToApprove}: ${allowance.toString()}`);
-    console.log(`After approval - Balance of ${tokenAddressToApprove}: ${balance.toString()}`);
-
-  } catch (error) {
-    console.error("Approval failed:", error);
-    alert(`Approval failed: ${error.message || error.reason || "Unknown error"}`);
-  }
-}
-
-async function depositOrder() {
-  if (!signer) {
-    alert("Please connect your wallet first.");
-    return;
-  }
-
-  let price, amount, isBuy;
-  const selectedTypeChart = document.getElementById("type").value;
-  const selectedTypeLimit = document.getElementById("typeLimit").value;
-
-  // Determine which form is being used
-  const chartPriceInput = document.getElementById("price").value;
-  const chartAmountInput = document.getElementById("amount").value;
-  const limitPriceInput = document.getElementById("limitPrice").value;
-  const limitAmountInput = document.getElementById("limitAmount").value;
-
-  if (chartAmountInput && parseFloat(chartAmountInput) > 0 && chartPriceInput) {
-    price = parseFloat(chartPriceInput);
-    amount = parseFloat(chartAmountInput);
-    isBuy = (selectedTypeChart === 'buy');
-    // For chart orders, use the live `lastPrice` instead of the input field value
-    price = lastPrice;
-  } else if (limitAmountInput && parseFloat(limitAmountInput) > 0 && limitPriceInput) {
-    price = parseFloat(limitPriceInput);
-    amount = parseFloat(limitAmountInput);
-    isBuy = (selectedTypeLimit === 'buy');
-  } else {
-    alert("Please enter a valid price and amount for your order.");
-    return;
-  }
-
-  if (isNaN(price) || isNaN(amount) || amount <= 0) {
-    alert("Please enter valid numeric values for price and amount.");
-    return;
-  }
-
-  const escrowContract = new ethers.Contract(ESCROW_ADDRESS, ESCROW_ABI, signer);
-  const baseTokenContract = new ethers.Contract(BASE_TOKEN_ADDRESS, TOKEN_ABI, provider);
-  const quoteTokenContract = new ethers.Contract(QUOTE_TOKEN_ADDRESS, TOKEN_ABI, provider);
-
-  try {
-    const tokenDecimals = 18; // Assuming 18 decimals for both tokens
-
-    const amountWei = ethers.parseUnits(amount.toString(), tokenDecimals);
-    const priceWei = ethers.parseUnits(price.toString(), tokenDecimals);
-
-    let requiredBalance;
-    let tokenAddressNeeded;
-    let tokenSymbolNeeded;
-
-    if (isBuy) {
-      // For buy orders, we pay with QUOTE_TOKEN (Pre Alpha)
-      requiredBalance = (BigInt(amountWei) * BigInt(priceWei)) / (10n ** BigInt(tokenDecimals));
-      tokenAddressNeeded = QUOTE_TOKEN_ADDRESS;
-      tokenSymbolNeeded = "Pre Alpha (α)";
-    } else {
-      // For sell orders, we pay with BASE_TOKEN (Pre Omega)
-      requiredBalance = amountWei;
-      tokenAddressNeeded = BASE_TOKEN_ADDRESS;
-      tokenSymbolNeeded = "Pre Omega (Ω)";
-    }
-
-    const currentBalanceWei = await (new ethers.Contract(tokenAddressNeeded, TOKEN_ABI, signer)).balanceOf(connectedWallet);
-    const currentAllowanceWei = await (new ethers.Contract(tokenAddressNeeded, TOKEN_ABI, signer)).allowance(connectedWallet, ESCROW_ADDRESS);
-
-    console.log(`Deposit attempt for ${tokenSymbolNeeded}:`);
-    console.log(`  Connected Wallet: ${connectedWallet}`);
-    console.log(`  Price: ${price}, Amount: ${amount}`);
-    console.log(`  priceWei: ${priceWei.toString()}, amountWei: ${amountWei.toString()}`);
-    console.log(`  isBuy: ${isBuy}`);
-    console.log(`  Token Needed for Deposit: ${tokenAddressNeeded} (${tokenSymbolNeeded})`);
-    console.log(`  Required Balance (Wei): ${requiredBalance.toString()}`);
-    console.log(`  Current Balance (Wei): ${currentBalanceWei.toString()}`);
-    console.log(`  Current Allowance (Wei): ${currentAllowanceWei.toString()}`);
-
-    if (currentAllowanceWei < requiredBalance) {
-      alert(`Insufficient allowance for ${tokenSymbolNeeded}. Please approve at least ${ethers.formatUnits(requiredBalance, tokenDecimals)} ${tokenSymbolNeeded}. You have: ${ethers.formatUnits(currentAllowanceWei, tokenDecimals)}`);
-      return;
-    }
-
-    if (currentBalanceWei < requiredBalance) {
-      alert(`Insufficient ${tokenSymbolNeeded} balance for deposit. You have: ${ethers.formatUnits(currentBalanceWei, tokenDecimals)} You need: ${ethers.formatUnits(requiredBalance, tokenDecimals)}`);
-      return;
-    }
-
-    // Parameters for the deposit function are (amount_of_baseToken_to_buy, price_in_quoteToken, isBuy)
-    // The contract logic expects 'amount' to be the amount of the BASE token (Pre Omega)
-    // And 'price' to be in QUOTE token (Pre Alpha) units.
-    // The `isBuy` flag determines if the order is a buy or sell.
-
-    // If it's a buy order, the 'amount' parameter for the contract is the amount of BASE_TOKEN desired
-    // The 'price' parameter for the contract is the price per unit of BASE_TOKEN in QUOTE_TOKEN.
-    // If it's a sell order, the 'amount' parameter for the contract is the amount of BASE_TOKEN to sell
-    // The 'price' parameter for the contract is the price per unit of BASE_TOKEN in QUOTE_TOKEN.
-    const depositAmountForContract = amountWei; // This is always the base token amount
-    const depositPriceForContract = priceWei; // This is always the quote token price
-
-    console.log(`Calling deposit with: amount=${depositAmountForContract.toString()}, price=${depositPriceForContract.toString()}, isBuy=${isBuy}`);
-    const tx = await escrowContract.deposit(depositAmountForContract, depositPriceForContract, isBuy);
-  await tx.wait();
-    alert("Deposit successful!");
-    console.log(`Deposit transaction successful: ${tx.hash}`);
-
-    // Clear form fields
-    document.getElementById("price").value = "";
-    document.getElementById("amount").value = "";
-    document.getElementById("limitPrice").value = "";
-    document.getElementById("limitAmount").value = "";
-
-    loadOrderBook(); // Refresh order book after deposit
-
-  } catch (error) {
-    console.error("Deposit failed:", error);
-    alert(`Deposit failed: ${error.message || error.reason || "Unknown error"}`);
-  }
-}
-
-function cancelOrder(orderId) {
-  alert("Cancel order functionality is not yet implemented for order ID: " + orderId);
-}
-
-// Initial calls
-window.onload = () => {
-  setupChart();
-  setupDepthChart(); // Initialize depth chart on load
-  setInterval(updateChart, 1000);
-  connectWallet(); // This will now also call populateProjectOverview
-};
-
-// New function to setup the Market Depth Chart
-function setupDepthChart() {
-  const ctx = document.getElementById("depthCanvas").getContext("2d");
-  depthChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      datasets: [
-        { // Buy Orders (Bids)
-          label: 'Bids',
-          borderColor: 'rgba(0, 255, 0, 0.8)',
-          backgroundColor: 'rgba(0, 255, 0, 0.2)',
-          borderWidth: 1,
-          fill: true,
-          stepped: true,
-          data: []
-        },
-        { // Sell Orders (Asks)
-          label: 'Asks',
-          borderColor: 'rgba(255, 0, 0, 0.8)',
-          backgroundColor: 'rgba(255, 0, 0, 0.2)',
-          borderWidth: 1,
-          fill: true,
-          stepped: true,
-          data: []
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      animation: false,
-      scales: {
-        x: {
-          type: 'linear',
-          position: 'bottom',
-          title: { display: true, text: 'Price' }
-        },
-        y: {
-          beginAtZero: true,
-          title: { display: true, text: 'Cumulative Amount' }
-        }
-      },
-      plugins: {
-        tooltip: {
-          mode: 'index',
-          intersect: false,
-        }
-      }
-    }
-  });
-}
-
-// New function to update the Market Depth Chart
-function updateDepthChart(bids, asks) {
-  const bidData = [];
-  const askData = [];
-  let cumulativeBidAmount = 0;
-  let cumulativeAskAmount = 0;
-
-  // Process bids: cumulative amount from highest price downwards
-  bids.sort((a, b) => a.price - b.price); // Sort ascending by price for correct cumulative calculation
-  bids.forEach(order => {
-    cumulativeBidAmount += order.amount;
-    bidData.push({ x: order.price, y: cumulativeBidAmount });
-  });
-
-  // Process asks: cumulative amount from lowest price upwards
-  asks.sort((a, b) => b.price - a.price); // Sort descending by price for correct cumulative calculation
-  asks.forEach(order => {
-    cumulativeAskAmount += order.amount;
-    askData.push({ x: order.price, y: cumulativeAskAmount });
-  });
-
-  depthChart.data.datasets[0].data = bidData;
-  depthChart.data.datasets[1].data = askData;
-  depthChart.update();
-}
-</script>
+  </script>
 </body>
 </html>
