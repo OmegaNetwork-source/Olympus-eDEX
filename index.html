@@ -492,13 +492,12 @@
 <body>
   <div class="header-buttons">
     <button id="connectWallet" class="wallet-button">Connect Wallet</button>
+    <button id="disconnectWallet" class="wallet-button" style="display:none;" onclick="disconnectWallet()">Disconnect</button>
     <button class="list-token-button" onclick="location.href='settings.html'">List Token</button>
   </div>
 
   <div class="main-titles-container">
-    <h1 class="header-main-title">Ωlympus eDEX</h1>
     <div class="logo">Ω</div>
-    <div class="header-subtitle">Omega Network</div>
   </div>
 
   <div class="tabs">
@@ -771,13 +770,31 @@
     }
 
     const btn = document.getElementById("connectWallet");
+    const disconnectBtn = document.getElementById("disconnectWallet");
     if (connectedWallet) {
       btn.classList.add("connected");
       btn.innerText = `${connectedWallet.slice(0, 6)}...${connectedWallet.slice(-4)}`;
+      disconnectBtn.style.display = "inline-block";
     } else {
       btn.classList.remove("connected");
       btn.innerText = "Connect Wallet";
+      disconnectBtn.style.display = "none";
     }
+    loadOrderBook();
+    populateProjectOverview();
+  }
+
+  function disconnectWallet() {
+    signer = null;
+    connectedWallet = null;
+    provider = null;
+
+    const btn = document.getElementById("connectWallet");
+    const disconnectBtn = document.getElementById("disconnectWallet");
+    btn.classList.remove("connected");
+    btn.innerText = "Connect Wallet";
+    disconnectBtn.style.display = "none";
+
     loadOrderBook();
     populateProjectOverview();
   }
