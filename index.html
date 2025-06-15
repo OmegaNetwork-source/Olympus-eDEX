@@ -491,7 +491,11 @@
 </head>
 <body>
   <div class="header-buttons">
-    <button id="connectWallet" class="wallet-button" onclick="handleWalletButton()">Connect Wallet</button>
+<div class="header-buttons">
+  <button id="connectWallet" class="wallet-button" onclick="handleWalletButton()">Connect Wallet</button>
+  <button id="disconnectWallet" class="wallet-button" style="display:none;" onclick="disconnectWallet()">Disconnect</button>
+  <button class="list-token-button" onclick="location.href='settings.html'">List Token</button>
+</div>
     <button class="list-token-button" onclick="location.href='settings.html'">List Token</button>
   </div>
 
@@ -779,12 +783,15 @@
     }
 
     const btn = document.getElementById("connectWallet");
+    const disconnectBtn = document.getElementById("disconnectWallet");
     if (connectedWallet) {
       btn.classList.add("connected");
       btn.innerText = `${connectedWallet.slice(0, 6)}...${connectedWallet.slice(-4)}`;
+      disconnectBtn.style.display = "inline-block";
     } else {
       btn.classList.remove("connected");
       btn.innerText = "Connect Wallet";
+      disconnectBtn.style.display = "none";
     }
     loadOrderBook();
     populateProjectOverview();
@@ -793,11 +800,23 @@
   function disconnectWallet() {
     signer = null;
     connectedWallet = null;
+ x83mw9-codex/add-disconnect-option-for-wallet-connect
     provider = new ethers.JsonRpcProvider("https://0x4e454228.rpc.aurora-cloud.dev");
 
     const btn = document.getElementById("connectWallet");
     btn.classList.remove("connected");
     btn.innerText = "Connect Wallet";
+
+    provider = null;
+provider = null;
+
+const btn = document.getElementById("connectWallet");
+const disconnectBtn = document.getElementById("disconnectWallet");
+
+btn.classList.remove("connected");
+btn.innerText = "Connect Wallet";
+disconnectBtn.style.display = "none";
+ main
 
     loadOrderBook();
     populateProjectOverview();
