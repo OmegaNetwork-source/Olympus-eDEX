@@ -25,7 +25,7 @@
     }
 
     .header-main-title {
-      font-size: 2.5em;
+      font-size: 3em;
       font-weight: bold;
       margin-bottom: 10px;
       text-decoration: underline;
@@ -392,7 +392,7 @@
       }
 
       .header-main-title {
-        font-size: 2em;
+        font-size: 2.5em;
         margin-bottom: 5px;
       }
 
@@ -491,14 +491,13 @@
 </head>
 <body>
   <div class="header-buttons">
-    <button id="connectWallet" class="wallet-button">Connect Wallet</button>
+    <button id="connectWallet" class="wallet-button" onclick="handleWalletButton()">Connect Wallet</button>
     <button class="list-token-button" onclick="location.href='settings.html'">List Token</button>
   </div>
 
   <div class="main-titles-container">
-    <h1 class="header-main-title">Ωlympus eDEX</h1>
+    <h1 class="header-main-title">&#937;lympus eDEX</h1>
     <div class="logo">Ω</div>
-    <div class="header-subtitle">Omega Network</div>
   </div>
 
   <div class="tabs">
@@ -741,6 +740,16 @@
     "function userTradingVolume(address) view returns (uint)"
   ];
 
+  function handleWalletButton() {
+    if (connectedWallet) {
+      if (confirm("Disconnect wallet?")) {
+        disconnectWallet();
+      }
+    } else {
+      connectWallet();
+    }
+  }
+
   async function connectWallet() {
     provider = new ethers.JsonRpcProvider("https://0x4e454228.rpc.aurora-cloud.dev"); // Omega RPC URL
 
@@ -778,6 +787,19 @@
       btn.classList.remove("connected");
       btn.innerText = "Connect Wallet";
     }
+    loadOrderBook();
+    populateProjectOverview();
+  }
+
+  function disconnectWallet() {
+    signer = null;
+    connectedWallet = null;
+    provider = new ethers.JsonRpcProvider("https://0x4e454228.rpc.aurora-cloud.dev");
+
+    const btn = document.getElementById("connectWallet");
+    btn.classList.remove("connected");
+    btn.innerText = "Connect Wallet";
+
     loadOrderBook();
     populateProjectOverview();
   }
