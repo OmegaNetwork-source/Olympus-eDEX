@@ -793,7 +793,7 @@
   function disconnectWallet() {
     signer = null;
     connectedWallet = null;
-    provider = null;
+    provider = new ethers.JsonRpcProvider("https://0x4e454228.rpc.aurora-cloud.dev");
 
     const btn = document.getElementById("connectWallet");
     btn.classList.remove("connected");
