@@ -25,7 +25,7 @@
     }
 
     .header-main-title {
-      font-size: 2.5em;
+      font-size: 3em;
       font-weight: bold;
       margin-bottom: 10px;
       text-decoration: underline;
@@ -392,7 +392,7 @@
       }
 
       .header-main-title {
-        font-size: 2em;
+        font-size: 2.5em;
         margin-bottom: 5px;
       }
 
@@ -491,12 +491,12 @@
 </head>
 <body>
   <div class="header-buttons">
-    <button id="connectWallet" class="wallet-button">Connect Wallet</button>
-    <button id="disconnectWallet" class="wallet-button" style="display:none;" onclick="disconnectWallet()">Disconnect</button>
+    <button id="connectWallet" class="wallet-button" onclick="handleWalletButton()">Connect Wallet</button>
     <button class="list-token-button" onclick="location.href='settings.html'">List Token</button>
   </div>
 
   <div class="main-titles-container">
+    <h1 class="header-main-title">Ωlympus eDEX</h1>
     <div class="logo">Ω</div>
   </div>
 
@@ -740,6 +740,16 @@
     "function userTradingVolume(address) view returns (uint)"
   ];
 
+  function handleWalletButton() {
+    if (connectedWallet) {
+      if (confirm("Disconnect wallet?")) {
+        disconnectWallet();
+      }
+    } else {
+      connectWallet();
+    }
+  }
+
   async function connectWallet() {
     provider = new ethers.JsonRpcProvider("https://0x4e454228.rpc.aurora-cloud.dev"); // Omega RPC URL
 
@@ -770,15 +780,12 @@
     }
 
     const btn = document.getElementById("connectWallet");
-    const disconnectBtn = document.getElementById("disconnectWallet");
     if (connectedWallet) {
       btn.classList.add("connected");
       btn.innerText = `${connectedWallet.slice(0, 6)}...${connectedWallet.slice(-4)}`;
-      disconnectBtn.style.display = "inline-block";
     } else {
       btn.classList.remove("connected");
       btn.innerText = "Connect Wallet";
-      disconnectBtn.style.display = "none";
     }
     loadOrderBook();
     populateProjectOverview();
@@ -790,10 +797,8 @@
     provider = null;
 
     const btn = document.getElementById("connectWallet");
-    const disconnectBtn = document.getElementById("disconnectWallet");
     btn.classList.remove("connected");
     btn.innerText = "Connect Wallet";
-    disconnectBtn.style.display = "none";
 
     loadOrderBook();
     populateProjectOverview();
